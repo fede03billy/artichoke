@@ -1,11 +1,33 @@
 import requests
 import re
+import openai
+import os
 from urllib.parse import urlparse
 from flask import Flask, request, jsonify
 from bs4 import BeautifulSoup
 
-
+openai.api_key = os.getenv("OPENAI_API_KEY")
 app = Flask(__name__)
+
+
+def extract_keywords(text):
+    # Make the API request
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {
+                "role": "user",
+                "content": f"Extract the main keywords from this text: {text}",
+            },
+        ],
+    )
+
+    # Extract the keywords from the response
+    keywords = response["choices"][0]["message"]["content"]
+
+    # Return the keywords
+    return keywords
 
 
 @app.route("/", methods=["POST"])
@@ -44,6 +66,7 @@ def scrape_article():
         "url": url,
         "text": text,
         "image": image_url,
+        "keywords": extract_keywords(text),
     }
 
     return jsonify(scraped_data)

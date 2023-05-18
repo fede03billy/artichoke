@@ -16,6 +16,7 @@ To use this program, you need to have the following installed:
 - OpenAI library (`pip install openai`)
 
 ## Usage
+You need to have your OpenAI API key stored in an environment variable called `OPENAI_API_KEY`.
 ### In another project
 You can import the main function as follow:
 ```

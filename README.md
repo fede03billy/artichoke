@@ -32,7 +32,7 @@ python3 artichoke.py https://domain.com/blog/article/etc
 The scrape_article function's output is a string, you will need to parse it as a JSON to be able to use it elsewhere.
 
 You can use two other function from the program:
-- extract_keywords
-- summarize_article
+- `extract_keywords`
+- `summarize_article`
 
 They both receive a String as input and output a String as well. Their name is indicative of their function.

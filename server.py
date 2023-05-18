@@ -11,23 +11,58 @@ app = Flask(__name__)
 
 
 def extract_keywords(text):
+    # Define the prompt
+    prompt = f"Extract 5 keywords from this text, answer in the form of a comma-separated list: {text}"
+
     # Make the API request
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {
-                "role": "user",
-                "content": f"Extract the main keywords from this text: {text}",
-            },
-        ],
-    )
+    try:
+        response = openai.Completion.create(
+            model="text-davinci-003",  # Max 4K tokens
+            prompt=prompt,
+            max_tokens=100,
+        )
 
-    # Extract the keywords from the response
-    keywords = response["choices"][0]["message"]["content"]
+        # The output will be in the 'choices' field of the response
+        keywords = response["choices"][0]["text"].strip()
 
-    # Return the keywords
-    return keywords
+        # Return the keywords
+        return keywords
+    except Exception as e:
+        if "tokens" in str(e):
+            # Exception in case the text is longer than the maximum allowed by the API,
+            # Solution would be to split the text into smaller chunks and send them to the API separately
+            # For now, we just return an error message
+            return "The text is too long to be analysed for keywords."
+        else:
+            raise e
+
+
+def summarize_article(text):
+    prompt = f"Summarize this text: {text}"
+
+    # Make the API request
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",  # Max 8K tokens
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": prompt},
+            ],
+        )
+
+        # Extract the summary from the response
+        summary = response["choices"][0]["message"]["content"]
+
+        # Return the summary
+        return summary
+    except Exception as e:
+        if "messages" in str(e):
+            # Exception in case the text is longer than the maximum allowed by the API,
+            # Solution would be to split the text into smaller chunks and send them to the API separately
+            # For now, we just return an error message
+            return "The text is too long to be analyzed for summary."
+        else:
+            raise e
 
 
 @app.route("/", methods=["POST"])
@@ -67,6 +102,7 @@ def scrape_article():
         "text": text,
         "image": image_url,
         "keywords": extract_keywords(text),
+        "summary": summarize_article(text),
     }
 
     return jsonify(scraped_data)

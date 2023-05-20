@@ -58,7 +58,7 @@ def summarise_article(text):
         if "messages" in str(e):
             # Exception in case the text is longer than the maximum allowed by the API,
             # Solution would be to split the text into smaller chunks and send them to the API separately
-            # For now, we just return an error message
+            # For now, it just returns an error message
             return "The text is too long to be analyzed for summary."
         else:
             raise e
